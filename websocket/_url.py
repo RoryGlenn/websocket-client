@@ -86,9 +86,9 @@ def _is_subnet_address(hostname):
 
 
 def _is_address_in_network(ip, net):
-    ipaddr = struct.unpack('!I', socket.inet_aton(ip))[0]
-    netaddr, netmask = net.split('/')
-    netaddr = struct.unpack('!I', socket.inet_aton(netaddr))[0]
+    ipaddr = struct.unpack("!I", socket.inet_aton(ip))[0]
+    netaddr, netmask = net.split("/")
+    netaddr = struct.unpack("!I", socket.inet_aton(netaddr))[0]
 
     netmask = (0xFFFFFFFF << (32 - int(netmask))) & 0xFFFFFFFF
     return ipaddr & netmask == netaddr
@@ -96,14 +96,14 @@ def _is_address_in_network(ip, net):
 
 def _is_no_proxy_host(hostname, no_proxy):
     if not no_proxy:
-        if v := os.environ.get(
-            "no_proxy", os.environ.get("NO_PROXY", "")
-        ).replace(" ", ""):
+        if v := os.environ.get("no_proxy", os.environ.get("NO_PROXY", "")).replace(
+            " ", ""
+        ):
             no_proxy = v.split(",")
     if not no_proxy:
         no_proxy = DEFAULT_NO_PROXY_HOST
 
-    if '*' in no_proxy:
+    if "*" in no_proxy:
         return True
     if hostname in no_proxy:
         return True
@@ -115,13 +115,19 @@ def _is_no_proxy_host(hostname, no_proxy):
         )
     return any(
         hostname.endswith(domain)
-        for domain in [domain for domain in no_proxy if domain.startswith('.')]
+        for domain in [domain for domain in no_proxy if domain.startswith(".")]
     )
 
 
 def get_proxy_info(
-        hostname, is_secure, proxy_host=None, proxy_port=0, proxy_auth=None,
-        no_proxy=None, proxy_type='http'):
+    hostname,
+    is_secure,
+    proxy_host=None,
+    proxy_port=0,
+    proxy_auth=None,
+    no_proxy=None,
+    proxy_type="http",
+):
     """
     Try to retrieve proxy host and port from environment
     if not provided in options.
@@ -161,11 +167,15 @@ def get_proxy_info(
         env_keys.insert(0, "https_proxy")
 
     for key in env_keys:
-        if value := os.environ.get(
-            key, os.environ.get(key.upper(), "")
-        ).replace(" ", ""):
+        if value := os.environ.get(key, os.environ.get(key.upper(), "")).replace(
+            " ", ""
+        ):
             proxy = urlparse(value)
-            auth = (unquote(proxy.username), unquote(proxy.password)) if proxy.username else None
+            auth = (
+                (unquote(proxy.username), unquote(proxy.password))
+                if proxy.username
+                else None
+            )
             return proxy.hostname, proxy.port, auth
 
     return None, 0, None

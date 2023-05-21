@@ -32,7 +32,11 @@ class SimpleCookieJar:
                 if domain := v.get("domain"):
                     if not domain.startswith("."):
                         domain = f".{domain}"
-                    cookie = self.jar.get(domain) if self.jar.get(domain) else http.cookies.SimpleCookie()
+                    cookie = (
+                        self.jar.get(domain)
+                        if self.jar.get(domain)
+                        else http.cookies.SimpleCookie()
+                    )
                     cookie.update(simpleCookie)
                     self.jar[domain.lower()] = cookie
 
@@ -56,7 +60,15 @@ class SimpleCookieJar:
             if host.endswith(domain) or host == domain[1:]:
                 cookies.append(self.jar.get(domain))
 
-        return "; ".join(filter(
-            None, sorted(
-                ["{key}={value}".format(key=k, value=v.value) for cookie in filter(None, cookies) for k, v in cookie.items()]
-            )))
+        return "; ".join(
+            filter(
+                None,
+                sorted(
+                    [
+                        "{key}={value}".format(key=k, value=v.value)
+                        for cookie in filter(None, cookies)
+                        for k, v in cookie.items()
+                    ]
+                ),
+            )
+        )
